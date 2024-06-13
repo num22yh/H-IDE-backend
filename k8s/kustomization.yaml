@@ -1,6 +1,0 @@
-namespace: krampoline
-resources:
-  - backend.yaml
-  - service.yaml
-  - ingress.yaml
-  - mysql.yaml
