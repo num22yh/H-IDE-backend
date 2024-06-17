@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div id="chat">
+    <ul id="messages"></ul>
+    <input type="text" id="message" autocomplete="off"/>
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+    var stompClient = null;
+
+    function connect() {
+        var socket = new SockJS('/chat-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/messages', function (messageOutput) {
+                showMessage(JSON.parse(messageOutput.body));
+            });
+        });
+    }
+
+    function sendMessage() {
+        var message = document.getElementById('message').value;
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({'content': message}));
+    }
+
+    function showMessage(message) {
+        var response = document.getElementById('messages');
+        var li = document.createElement('li');
+        li.appendChild(document.createTextNode(message.content));
+        response.appendChild(li);
+    }
+
+    connect();
+</script>
+</body>
+</html>
