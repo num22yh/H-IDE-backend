@@ -48,15 +48,14 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers(
                                         new AntPathRequestMatcher("/signup"),
-                                        new AntPathRequestMatcher("/login"),
-                                        new AntPathRequestMatcher("/register")
+                                        new AntPathRequestMatcher("/login")
                                 ).permitAll() // Allow access to /login and /register for all users
                                 .anyRequest().authenticated() // Require authentication for all other requests
                 )
                 .formLogin(formLogin ->
                         formLogin
                                 .loginPage("/login") // Custom login page URL
-                                .defaultSuccessUrl("/chat") // Redirect to /chat after successful login
+                                .defaultSuccessUrl("/chat/chatroom") // Redirect to /chat after successful login
                                 .permitAll() // Allow access to the login page for all users
                 )
                 .logout(logout ->
