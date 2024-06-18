@@ -11,7 +11,6 @@ import java.util.Collections;
 public class CustomUserDetails implements UserDetails {
     private User user;
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList(); // 빈 리스트를 반환

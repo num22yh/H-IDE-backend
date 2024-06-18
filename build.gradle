@@ -28,9 +28,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.hibernate.orm:hibernate-core:6.1.7.Final'
 	implementation 'io.github.cdimascio:java-dotenv:5.2.2'
-	implementation 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.22' // 롬복의 최신 버전으로 변경
+	annotationProcessor 'org.projectlombok:lombok:1.18.22'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

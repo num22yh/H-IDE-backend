@@ -1,12 +1,10 @@
 package org.example.backend.chat;
 
-import org.example.backend.login.CustomUserDetails;
+
 import org.example.backend.login.User;
 import org.example.backend.login.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
