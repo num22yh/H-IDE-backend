@@ -20,7 +20,7 @@ public class Message {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "timestamp")
+    @Column(name = "timestamp", nullable = false)
     private Timestamp timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)

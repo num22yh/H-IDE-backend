@@ -1,16 +1,13 @@
 package org.example.backend.user.jwt;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.user.UserRepository;
+import org.example.backend.user.repository.UserRepository;
 import org.example.backend.user.dto.AuthDto;
 import org.example.backend.user.entity.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.sql.Timestamp;
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor

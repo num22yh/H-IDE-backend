@@ -4,7 +4,7 @@ import org.example.backend.chat.Message;
 import org.example.backend.chat.MessageRepository;
 import org.example.backend.chat.MessageReqDTO;
 import org.example.backend.chat.UserInfoResDTO;
-import org.example.backend.user.UserRepository;
+import org.example.backend.user.repository.UserRepository;
 import org.example.backend.user.entity.User;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;

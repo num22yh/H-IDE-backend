@@ -26,6 +26,10 @@
             clear: both;
             width: 50%;
         }
+        /* 노란색 하이라이트 */
+        .highlight {
+            background-color: yellow !important;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
@@ -35,13 +39,16 @@
     <ul id="messages"></ul>
     <input type="text" id="message" autocomplete="off"/>
     <button onclick="sendMessage()">Send</button>
-    <input type="text" id="searchQuery" autocomplete="off"/>
-    <button onclick="searchMessages()">Search</button>
+    <input type="text" id="content" autocomplete="off"/>
+    <button onclick="searchMessage()">Search</button>
+    <button onclick="loadMore()">Up</button>
 </div>
 
 <script>
     var stompClient = null;
     var myUsername = '';
+    var content = null
+    let targetMessageId = null
 
     //socket 통신
     function connect() {
@@ -92,22 +99,134 @@
         var li = document.createElement('li');
 
         // 메시지를 보낸 사람이 자신인지 확인하여 CSS 클래스를 다르게 적용
-        if (message.user.loginId === myUsername) {
+        if (message.sender.loginId === myUsername) {
+            console.log('보낸사람은' + message.sender.loginId)
+            li.className = 'message-right';
+        } else {
+            li.className = 'message-left';
+        }
+        // 메시지 내용 추가
+        var contentSpan = document.createElement('span');
+        contentSpan.textContent = message.content;
+        li.appendChild(contentSpan);
+
+        // 송신자 정보 추가
+        var senderSpan = document.createElement('span');
+        console.log(message.sender)
+        senderSpan.textContent = 'Sent by: ' + message.sender.loginId + '이 보냄';
+        senderSpan.className = 'timestamp';
+        li.appendChild(senderSpan);
+
+        // 타임스탬프 정보 추가
+        var timestampSpan = document.createElement('span');
+        timestampSpan.textContent = new Date(message.timestamp).toLocaleString();
+        timestampSpan.className = 'timestamp';
+        li.appendChild(timestampSpan);
+
+        response.appendChild(li);
+    }
+
+
+    //
+    async function searchMessage() {
+        content = document.getElementById('content').value;
+        var url = new URL('/chat/search', window.location.origin);
+        url.searchParams.append('content', content);
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const message = await response.json();
+
+            var responseElement = document.getElementById('messages');
+            responseElement.innerHTML = ''; // 기존 메시지 삭제
+
+            if (typeof message === 'string') {
+                // 메시지가 문자열인 경우
+                var li = document.createElement('li');
+                li.textContent = message;
+                responseElement.appendChild(li);
+            } else {
+                // 이전 메시지 불러오기
+                await loadMessages('before', message.id, responseElement);
+
+                // 메시지 출력
+                await displayMessage(message, responseElement);
+
+                // 다음 메시지 불러오기
+                await loadMessages('after', message.id, responseElement);
+            }
+
+            if (message) {
+                targetMessageId = message.id;
+            }
+        } catch (error) {
+            console.error('Error fetching message:', error);
+        }
+    }
+
+    // 메시지 불러오기 함수 (Promise 반환)
+    async function loadMessages(direction, messageId, responseElement) {
+        var url = `/chat/${direction}/${messageId}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Network response was not ok (${response.status})`);
+            }
+            const messages = await response.json();
+
+            messages.forEach(message => {
+                displayMessage(message, responseElement);
+            });
+        } catch (error) {
+            console.error(`Error fetching ${direction} messages:`, error);
+        }
+    }
+    // 메시지 출력 함수
+    async function displayMessage(message, responseElement) {
+        var li = document.createElement('li');
+
+        // 메시지를 보낸 사람이 자신인지 확인하여 CSS 클래스를 다르게 적용
+        if (message.sender.loginId === myUsername) {
             li.className = 'message-right';
         } else {
             li.className = 'message-left';
         }
 
-        li.appendChild(document.createTextNode(message.content));
-        response.appendChild(li);
+        // 메시지 내용 추가
+        var contentSpan = document.createElement('span');
+        contentSpan.textContent = message.content;
+        li.appendChild(contentSpan);
+
+        // 송신자 정보 추가
+        var senderSpan = document.createElement('span');
+        senderSpan.textContent = 'Sent by: ' + message.sender.loginId;
+        senderSpan.className = 'timestamp';
+        li.appendChild(senderSpan);
+
+        // 타임스탬프 정보 추가
+        var timestampSpan = document.createElement('span');
+        timestampSpan.textContent = new Date(message.timestamp).toLocaleString();
+        timestampSpan.className = 'timestamp';
+        li.appendChild(timestampSpan);
+
+        // 메시지가 "message"인 경우 노란색 하이라이트 클래스 추가
+        if (message.content === "message") {
+            li.classList.add('highlight');
+        }
+
+        responseElement.appendChild(li);
     }
 
 
-    // 나중에 다시 구현 ㅠ
-    function searchMessages() {
-        var query = document.getElementById('searchQuery').value;
-        var url = new URL('/chat/search', window.location.origin); // API 엔드포인트로 변경
-        url.searchParams.append('query', query);
+    function loadMore() {
+
+        var url = new URL('chat/search/more', window.location.origin);
+        url.searchParams.append('content', content);
+        url.searchParams.append('messageId', targetMessageId);
 
         fetch(url)
             .then(response => {
@@ -116,30 +235,46 @@
                 }
                 return response.json();
             })
-            .then(messages => {
-                var response = document.getElementById('messages');
-                response.innerHTML = ''; // 기존 메시지 삭제
-
-                messages.forEach(message => {
-                    console.log(message)
+            .then(message => {
+                if (message) {
+                    var response = document.getElementById('messages');
                     var li = document.createElement('li');
 
                     // 메시지를 보낸 사람이 자신인지 확인하여 CSS 클래스를 다르게 적용
-                    if (message.user.loginId === myUsername) {
+                    if (message.sender.loginId === myUsername) {
                         li.className = 'message-right';
                     } else {
                         li.className = 'message-left';
                     }
 
-                    var content = document.createElement('span');
-                    content.textContent = message.content; // 메시지 내용 추가
-                    li.appendChild(content);
+                    // 메시지 내용 추가
+                    var contentSpan = document.createElement('span');
+                    contentSpan.textContent = message.content;
+                    li.appendChild(contentSpan);
 
-                    response.appendChild(li);
-                });
+                    // 송신자 정보 추가
+                    var senderSpan = document.createElement('span');
+                    senderSpan.textContent = 'Sent by: ' + message.sender.loginId + '이 보냄';
+                    senderSpan.className = 'timestamp';
+                    li.appendChild(senderSpan);
+
+                    // 타임스탬프 정보 추가
+                    var timestampSpan = document.createElement('span');
+                    timestampSpan.textContent = new Date(message.timestamp).toLocaleString();
+                    timestampSpan.className = 'timestamp';
+                    li.appendChild(timestampSpan);
+
+                    // 가장 오래된 메시지 위에 추가
+                    response.insertBefore(li, response.firstChild);
+                    if (message) {
+                        targetMessageId = message.id
+                        console.log(targetMessageId)
+                    }
+                }
             })
-            .catch(error => console.error('Error fetching messages:', error));
+            .catch(error => console.error('Error fetching message:', error));
     }
+
     // 커넥트 실행
     connect();
 </script>
