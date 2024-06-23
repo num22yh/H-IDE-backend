@@ -10,19 +10,19 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 @Slf4j
 @Component
-public class WebSocketEventListener implements ApplicationListener<SessionConnectEvent> {
+public class WebSocketEventListener {
 
-    @Override
-    public void onApplicationEvent(SessionConnectEvent event) {
+    @EventListener
+    public void handleWebSocketConnectListener(SessionConnectEvent event) {
         StompHeaderAccessor headers = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headers.getSessionId();
-        log.debug("WebSocket Connected:={}", sessionId);
+        log.debug("WebSocket Connected: {}", sessionId);
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headers = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headers.getSessionId();
-        log.debug("WebSocket Disconnected:={}", sessionId);
+        log.debug("WebSocket Disconnected: {}", sessionId);
     }
 }

@@ -3,14 +3,15 @@ package org.example.backend.chat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.backend.login.User;
+import org.example.backend.user.entity.User;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Entity
 @Getter
 @Setter
-@Table(name="massages")
+@Table(name = "messages")
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,12 +21,13 @@ public class Message {
     private String content;
 
     @Column(name = "timestamp")
-    private LocalDateTime timestamp;
+    private Timestamp timestamp;
 
-    @ManyToOne
-    @JoinColumn(name="user_id",nullable = false)
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User user; // 유저 객체를 참조
+
     public Message() {
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = Timestamp.from(Instant.now());
     }
 }
