@@ -48,7 +48,9 @@ public class WebSocketService {
                 message.setUser(user);
                 Message savedMessage = messageRepository.save(message);
 
-                UserInfoResDTO userInfoResDto = UserInfoResDTO.builder().userId(userId).userName(user.getUserName()).email(user.getUserEmail()).nickname(user.getUserNickname()).build();
+                UserInfoResDTO userInfoResDto = UserInfoResDTO.builder().
+                        userId(userId).userName(user.getUserName()).email(user.getUserEmail())
+                        .nickname(user.getUserNickname()).build();
 
                 messageReqDto.setId(savedMessage.getId());
                 messageReqDto.setTimestamp(savedMessage.getTimestamp());
