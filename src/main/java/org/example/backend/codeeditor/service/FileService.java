@@ -124,7 +124,7 @@ public class FileService {
                 break;
             case "py":
                 // Python 파일의 경우, 직접 실행
-                command = "python " + tempFile.getAbsolutePath();
+                command = "python3 " + tempFile.getAbsolutePath();
                 process = Runtime.getRuntime().exec(command);
                 break;
             case "js":
