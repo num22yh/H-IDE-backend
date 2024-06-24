@@ -21,8 +21,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         User userData = userRepository.findByUserId(loginId);
 
         if (userData != null) {
-
-            AuthDto authDto = AuthDto.builder().loginId(userData.getUserId()).password(userData.getUserPassword()).loginRecord(userData.getLoginAt()).role(userData.getUserRole()).build();
+            AuthDto authDto = AuthDto.builder()
+                    .loginId(userData.getUserId())
+                    .password(userData.getUserPassword())
+                    .loginRecord(userData.getLoginAt())
+                    .role(userData.getUserRole())
+                    .usersId(userData.getUsersId())  // usersId 추가
+                    .build();
 
             // UserDetails에 담아서 return하면 AutneticationManager가 검증 함
             return new CustomUserDetails(authDto);

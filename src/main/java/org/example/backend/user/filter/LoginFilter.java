@@ -56,9 +56,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
 
         String role = auth.getAuthority();
+        int usersId = customUserDetails.getUsersId(); //usersId 가져오기
 
         // token 받아오기
-        String token = jwtUtil.createJwt(loginId, role, 10 * 60 * 1000L);
+        String token = jwtUtil.createJwt(loginId, role, usersId,10 * 60 * 1000L);
 
         response.addHeader("Authorization", "Hide " + token);
     }

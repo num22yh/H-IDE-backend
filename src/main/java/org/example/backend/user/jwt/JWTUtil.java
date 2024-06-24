@@ -39,12 +39,25 @@ public class JWTUtil {
     }
 
 
+
+
     // JWT 토큰 발급
-    public String createJwt(String loginId, String role, Long expiredMs) {
+    public String createJwt(String loginId, String role, int usersId, Long expiredMs) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + (60 * 60 * 1000));
-        return Jwts.builder().claim("loginId", loginId).claim("role", role).issuedAt(now) // 현재 발행 시간
+        return Jwts.builder().claim("loginId", loginId).claim("role", role).claim("usersId", usersId)//usersId 추가
+                .issuedAt(now) // 현재 발행 시간
                 .expiration(expiryDate).signWith(secretKey) // secretKey를 통해 암호화
                 .compact();
+    }
+
+    // 토큰에서 usersId 추출
+    public int getUsersId(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("usersId", Integer.class);
     }
 }

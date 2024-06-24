@@ -206,5 +206,32 @@ public class UserService {
         userActRepository.resetActivity(now);
     }
 
+    //users_id로 사용자 찾기
+    public Optional<User> getUserByUsersId(int usersId) {
+        return userRepository.findByUsersId(usersId);
+    }
+
+    // 알람 주기 업데이트
+    @Transactional
+    public void updateAlarmCycle(String userId, int alarmCycle) {
+        User user = userRepository.findByUserId(userId);
+        if (user != null) {
+            user.setAlarmCycle(alarmCycle);
+            userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("해당 사용자를 찾을 수 없습니다: " + userId);
+        }
+    }
+
+    //알람 주기 전송해주기
+    public Integer getAlarmCycle(String userId) {
+        User user = userRepository.findByUserId(userId);
+        if (user != null) {
+            return user.getAlarmCycle();
+        } else {
+            throw new IllegalArgumentException("해당 사용자를 찾을 수 없습니다: " + userId);
+        }
+    }
+
 
 }

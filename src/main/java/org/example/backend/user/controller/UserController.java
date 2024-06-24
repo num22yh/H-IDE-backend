@@ -8,6 +8,7 @@ import org.example.backend.user.dto.req.*;
 import org.example.backend.user.dto.res.ActivityInfoResDto;
 import org.example.backend.user.dto.res.UserInfoResDto;
 import org.example.backend.user.entity.User;
+import org.example.backend.user.jwt.CustomUserDetails;
 import org.example.backend.user.jwt.JWTUtil;
 import org.example.backend.user.service.EmailService;
 import org.example.backend.user.service.UserService;
@@ -131,15 +132,19 @@ public class UserController {
             // 인증 객체를 SecurityContext에 설정
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal(); //usersId 가져오기
+            int usersId = customUserDetails.getUsersId();  // usersId 가져오기
+
+
             // JWT 발급
-            String token = jwtUtil.createJwt(loginReqDto.loginId(), authentication.getAuthorities().iterator().next().getAuthority(), 86400000L);
+            String token = jwtUtil.createJwt(loginReqDto.loginId(), authentication.getAuthorities().iterator().next().getAuthority(), usersId,86400000L);
 
             // 로그인 기록 갱신
             userService.login(loginReqDto);
 
             // 응답 헤더에 JWT 추가
             String id = loginReqDto.loginId();
-            return ResponseEntity.ok().header("authorization", "Bearer " + token).header("UserId",id).body("로그인에 성공하셨습니다.");
+            return ResponseEntity.ok().header("authorization", "Bearer " + token).header("UserId",id).header("UsersId", String.valueOf(usersId)).body("로그인에 성공하셨습니다.");
 
 
         } catch (AuthenticationException e) {
@@ -236,6 +241,33 @@ public class UserController {
         String userId = userService.getLoginIdFromJwt();
         userService.incrementPoint(userId);
         return ResponseEntity.ok("인증이 완료되었습니다.");
+    }
+
+    // 알람 주기 업데이트 추가
+    @PutMapping("/my-page/{userId}/alarm-cycle")
+    public ResponseEntity<String> updateAlarmCycle(@PathVariable("userId") String userId, @RequestBody UpdateAlarmCycleDto request) {
+        Integer alarmCycle = request.getAlarmCycle();
+        if (alarmCycle == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("알람 주기를 입력해주세요.");
+        }
+
+        try {
+            userService.updateAlarmCycle(userId, alarmCycle);
+            return ResponseEntity.ok("알람 주기가 성공적으로 업데이트되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    // 사용자가 설정한 알람 주기 전송
+    @GetMapping("/my-page/{userId}/alarm-cycle")
+    public ResponseEntity<Integer> getAlarmCycle(@PathVariable("userId") String userId) {
+        Integer alarmCycle = userService.getAlarmCycle(userId);
+        if (alarmCycle != null) {
+            return ResponseEntity.ok(alarmCycle);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
 }

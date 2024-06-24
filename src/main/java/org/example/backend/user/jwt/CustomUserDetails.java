@@ -62,4 +62,8 @@ public class CustomUserDetails implements UserDetails {
     public Timestamp getLoginRecord() {
         return authDto.getLoginRecord();
     }
+
+    public int getUsersId() {
+        return authDto.getUsersId(); //추가
+    }
 }

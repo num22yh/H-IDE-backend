@@ -13,4 +13,7 @@ public class AuthDto {
     private String password;
     private Timestamp loginRecord;
     private String role;
+
+    // usersid 추가
+    private int usersId;
 }
