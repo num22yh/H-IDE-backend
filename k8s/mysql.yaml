@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: krmp-d2hub-idock.9rum.cc/dev-test/repo_30709255bdd6
+          image: https://github.com/num22yh/hide_db.git
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
